@@ -102,12 +102,6 @@ variable "blue_green_enabled" {
   default     = "false"
 }
 
-variable "deployment_manual_approval_enabled" {
-  type        = "string"
-  description = "A boolean to enable a manual approval before deploying"
-  defautl     = "false"
-}
-
 variable "environment" {
   type        = "list"
   description = "The environment variables for the task definition. This is a list of maps"
