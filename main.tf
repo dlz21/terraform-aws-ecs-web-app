@@ -21,6 +21,7 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 
 module "alb_ingress" {
+  count            = "${var.blue_green_enabled == "false" ? 1 : 0}"
   source            = "git::https://github.com/cloudposse/terraform-aws-alb-ingress.git?ref=tags/0.7.0"
   name              = "${var.name}"
   namespace         = "${var.namespace}"
@@ -74,7 +75,7 @@ module "container_definition" {
 }
 
 module "ecs_alb_service_task" {
-  source                            = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.10.0"
+  source                            = "git::https://github.com/GMADLA/terraform-aws-ecs-alb-service-task.git?ref=tags/0.12.0-dev.1"
   name                              = "${var.name}"
   namespace                         = "${var.namespace}"
   stage                             = "${var.stage}"
@@ -92,9 +93,11 @@ module "ecs_alb_service_task" {
   security_group_ids                = ["${var.ecs_security_group_ids}"]
   private_subnet_ids                = ["${var.ecs_private_subnet_ids}"]
   container_port                    = "${var.container_port}"
+  deployment_type                   = "${var.blue_green_enabled == "false" ? "ECS" : "CODE_DEPLOY"}"
 }
 
 module "ecs_codepipeline" {
+  count                 = "${var.blue_green_enabled == "false" ? 1 : 0}"
   enabled               = "${var.codepipeline_enabled}"
   source                = "git::https://github.com/cloudposse/terraform-aws-ecs-codepipeline.git?ref=tags/0.7.0"
   name                  = "${var.name}"
@@ -190,6 +193,7 @@ module "ecs_alarms" {
 }
 
 module "alb_target_group_alarms" {
+  count                          = "${var.blue_green_enabled == "false" ? 1 : 0}"
   enabled                        = "${var.alb_target_group_alarms_enabled}"
   source                         = "git::https://github.com/cloudposse/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=tags/0.5.0"
   name                           = "${var.name}"
@@ -210,3 +214,7 @@ module "alb_target_group_alarms" {
   period                         = "${var.alb_target_group_alarms_period}"
   evaluation_periods             = "${var.alb_target_group_alarms_evaluation_periods}"
 }
+
+# TODO Lambda updating SERVICE TASK ON deploy success, or deploy rollback.
+# TODO BLUE GREEN Deployment Trigger hooks
+# TODO Code Pipeline manual approval

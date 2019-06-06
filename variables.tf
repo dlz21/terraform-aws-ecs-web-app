@@ -96,6 +96,18 @@ variable "launch_type" {
   default     = "FARGATE"
 }
 
+variable "blue_green_enabled" {
+  type        = "string"
+  description = "A boolean to enable blue green deployment"
+  default     = "false"
+}
+
+variable "deployment_manual_approval_enabled" {
+  type        = "string"
+  description = "A boolean to enable a manual approval before deploying"
+  defautl     = "false"
+}
+
 variable "environment" {
   type        = "list"
   description = "The environment variables for the task definition. This is a list of maps"
@@ -612,4 +624,35 @@ variable "authentication_oidc_user_info_endpoint" {
   type        = "string"
   description = "OIDC User Info Endpoint"
   default     = ""
+}
+
+variable "alb_prod_listener_arn" {
+  type        = "string"
+  description = "The ALB Production Listener ARN"
+}
+
+variable "alb_ssl_listener_arn" {
+  type        = "string"
+  description = "The ALB SSL Listener ARN"
+}
+
+variable "alb_test_listener_arn" {
+  type        = "string"
+  description = "The ALB Test Listener ARN"
+}
+
+variable "alb_target_group_blue_arn" {
+  type        = "string"
+  description = "The ALB target group ARN for the blue service"
+}
+
+variable "alb_target_group_green_arn" {
+  type        = "string"
+  description = "The ALB target group ARN for the green service"
+}
+
+variable "alb_ingress_prod_listener_arns_count" {
+  type        = "string"
+  default     = "0"
+  description = "The number of production ingress listeners for Blue Green"
 }
