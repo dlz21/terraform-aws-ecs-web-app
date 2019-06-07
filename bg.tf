@@ -166,7 +166,7 @@ resource "aws_codedeploy_deployment_group" "default" {
   }
 }
 
-module "ecs_codepipeline" {
+module "ecs_bg_codepipeline" {
   count                 = "${var.blue_green_enabled == "true" ? 1 : 0}"
   enabled               = "${var.codepipeline_enabled}"
   source                = "git::https://github.com/GMADLA/terraform-aws-ecs-codepipeline.git?ref=tags/0.10.0-dev.1"
