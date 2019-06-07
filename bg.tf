@@ -160,7 +160,7 @@ resource "aws_codedeploy_deployment_group" "default" {
       }
 
       test_traffic_route {
-        listener_arns = ["${var.alb_test_listener_arns}"]
+        listener_arns = ["${var.alb_test_listener_arn}"]
       }
     }
   }
@@ -169,7 +169,7 @@ resource "aws_codedeploy_deployment_group" "default" {
 module "ecs_bg_codepipeline" {
   count                 = "${var.blue_green_enabled == "true" ? 1 : 0}"
   enabled               = "${var.codepipeline_enabled}"
-  source                = "git::https://github.com/GMADLA/terraform-aws-ecs-codepipeline.git?ref=tags/0.10.0-dev.1"
+  source                = "git::https://github.com/GMADLA/terraform-aws-ecs-codepipeline.git?ref=tags/0.10.0-dev.2"
   name                  = "${var.name}"
   namespace             = "${var.namespace}"
   stage                 = "${var.stage}"
