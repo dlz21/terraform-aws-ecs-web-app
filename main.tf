@@ -137,7 +137,7 @@ module "ecs_alb_service_task" {
   namespace                         = "${var.namespace}"
   stage                             = "${var.stage}"
   attributes                        = "${var.attributes}"
-  alb_target_group_arn              = "${module.alb_ingress.target_group_arn}"
+  alb_target_group_arn              = "${module.alb_ingress_prod.target_group_arn}"
   container_definition_json         = "${module.container_definition.json}"
   container_name                    = "${module.default_label.id}"
   desired_count                     = "${var.desired_count}"
@@ -148,7 +148,7 @@ module "ecs_alb_service_task" {
   launch_type                       = "${var.launch_type}"
   vpc_id                            = "${var.vpc_id}"
   security_group_ids                = ["${var.ecs_security_group_ids}"]
-  private_subnet_ids                = ["${var.ecs_private_subnet_ids}"]
+  subnet_ids                        = ["${var.ecs_private_subnet_ids}"]
   container_port                    = "${var.container_port}"
   deployment_type                   = "CODE_DEPLOY"
 }
