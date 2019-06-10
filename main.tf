@@ -166,7 +166,7 @@ resource "aws_codedeploy_deployment_group" "default" {
   service_role_arn       =  "${module.ecs_alb_service_task.service_role_arn}"
 
   auto_rollback_configuration {
-    enable = true
+    enabled = true
     events = ["DEPLOYMENT_FAILURE"]
   }
 
