@@ -106,7 +106,6 @@
 | webhook_filter_json_path | The JSON path to filter on | string | `$.ref` | no |
 | webhook_filter_match_equals | The value to match on (e.g. refs/heads/{Branch}) | string | `refs/heads/{Branch}` | no |
 | webhook_target_action | The name of the action in a pipeline you want to connect to the webhook. The action must be from the source (first) stage of the pipeline | string | `Source` | no |
-| blue_green_enabled | Whether to enable ECS with Blue/Green Deployment | string | `false` | no |
 | alb_prod_listener_arn | ALB production listener arn for Blue/Green | string | `` | no |
 | alb_ssl_listener_arn | ALB SSL listener arn  for Blue/Green | string | `` | no |
 | alb_test_listener_arn | ALB test listener arn  for Blue/Green | string | `` | no |
