@@ -106,6 +106,10 @@
 | webhook_filter_json_path | The JSON path to filter on | string | `$.ref` | no |
 | webhook_filter_match_equals | The value to match on (e.g. refs/heads/{Branch}) | string | `refs/heads/{Branch}` | no |
 | webhook_target_action | The name of the action in a pipeline you want to connect to the webhook. The action must be from the source (first) stage of the pipeline | string | `Source` | no |
+| alb_http_listener_arn | ALB production listener arn for Blue/Green | string | `` | no |
+| alb_ssl_listener_arn | ALB SSL listener arn  for Blue/Green | string | `` | no |
+| alb_test_listener_arn | ALB test listener arn  for Blue/Green | string | `` | no |
+| alb_ingress_prod_listener_arns_count | The number of production ingress listeners | string | `0` | no |
 
 ## Outputs
 

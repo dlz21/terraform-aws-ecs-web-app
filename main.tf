@@ -8,11 +8,12 @@ module "default_label" {
 
 module "ecr" {
   enabled    = "${var.codepipeline_enabled}"
-  source     = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.5.0"
+  source     = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.6.0"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
   attributes = "${compact(concat(var.attributes, list("ecr")))}"
+  max_image_count = "30"
 }
 
 resource "aws_cloudwatch_log_group" "app" {
@@ -20,39 +21,62 @@ resource "aws_cloudwatch_log_group" "app" {
   tags = "${module.default_label.tags}"
 }
 
-module "alb_ingress" {
+module "codedeploy_label" {
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.2.1"
+  attributes = ["${compact(concat(var.attributes, list("codedeploy")))}"]
+  delimiter  = "${var.delimiter}"
+  name       = "${var.name}"
+  namespace  = "${var.namespace}"
+  stage      = "${var.stage}"
+  tags       = "${var.tags}"
+}
+
+module "codedeploy_group_label" {
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.2.1"
+  attributes = ["${compact(concat(var.attributes, list("codedeploy", "group")))}"]
+  delimiter  = "${var.delimiter}"
+  name       = "${var.name}"
+  namespace  = "${var.namespace}"
+  stage      = "${var.stage}"
+  tags       = "${var.tags}"
+}
+
+module "alb_ingress_blue" {
   source            = "git::https://github.com/cloudposse/terraform-aws-alb-ingress.git?ref=tags/0.7.0"
   name              = "${var.name}"
   namespace         = "${var.namespace}"
   stage             = "${var.stage}"
-  attributes        = "${var.attributes}"
+  attributes        = ["${var.attributes}", "blue"]
   vpc_id            = "${var.vpc_id}"
   port              = "${var.container_port}"
   health_check_path = "${var.alb_ingress_healthcheck_path}"
 
-  authenticated_paths   = ["${var.alb_ingress_authenticated_paths}"]
   unauthenticated_paths = ["${var.alb_ingress_unauthenticated_paths}"]
-  authenticated_hosts   = ["${var.alb_ingress_authenticated_hosts}"]
   unauthenticated_hosts = ["${var.alb_ingress_unauthenticated_hosts}"]
 
-  authenticated_priority   = "${var.alb_ingress_listener_authenticated_priority}"
   unauthenticated_priority = "${var.alb_ingress_listener_unauthenticated_priority}"
 
-  unauthenticated_listener_arns       = "${var.alb_ingress_unauthenticated_listener_arns}"
-  unauthenticated_listener_arns_count = "${var.alb_ingress_unauthenticated_listener_arns_count}"
-  authenticated_listener_arns         = "${var.alb_ingress_authenticated_listener_arns}"
-  authenticated_listener_arns_count   = "${var.alb_ingress_authenticated_listener_arns_count}"
+  unauthenticated_listener_arns       = ["${var.alb_http_listener_arn}", "${var.alb_ssl_listener_arn}"]
+  unauthenticated_listener_arns_count = "${var.alb_ingress_prod_listener_arns_count}"
+}
 
-  authentication_type                        = "${var.authentication_type}"
-  authentication_cognito_user_pool_arn       = "${var.authentication_cognito_user_pool_arn}"
-  authentication_cognito_user_pool_client_id = "${var.authentication_cognito_user_pool_client_id}"
-  authentication_cognito_user_pool_domain    = "${var.authentication_cognito_user_pool_domain}"
-  authentication_oidc_client_id              = "${var.authentication_oidc_client_id}"
-  authentication_oidc_client_secret          = "${var.authentication_oidc_client_secret}"
-  authentication_oidc_issuer                 = "${var.authentication_oidc_issuer}"
-  authentication_oidc_authorization_endpoint = "${var.authentication_oidc_authorization_endpoint}"
-  authentication_oidc_token_endpoint         = "${var.authentication_oidc_token_endpoint}"
-  authentication_oidc_user_info_endpoint     = "${var.authentication_oidc_user_info_endpoint}"
+module "alb_ingress_green" {
+  source            = "git::https://github.com/cloudposse/terraform-aws-alb-ingress.git?ref=tags/0.7.0"
+  name              = "${var.name}"
+  namespace         = "${var.namespace}"
+  stage             = "${var.stage}"
+  attributes        = ["${var.attributes}", "green"]
+  vpc_id            = "${var.vpc_id}"
+  port              = "${var.container_port}"
+  health_check_path = "${var.alb_ingress_healthcheck_path}"
+
+  unauthenticated_paths = ["${var.alb_ingress_unauthenticated_paths}"]
+  unauthenticated_hosts = ["${var.alb_ingress_unauthenticated_hosts}"]
+
+  unauthenticated_priority = "${var.alb_ingress_listener_unauthenticated_priority}"
+
+  unauthenticated_listener_arns       = ["${var.alb_test_listener_arn}"]
+  unauthenticated_listener_arns_count = "1"
 }
 
 module "container_definition" {
@@ -74,12 +98,12 @@ module "container_definition" {
 }
 
 module "ecs_alb_service_task" {
-  source                            = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.10.0"
+  source                            = "git::https://github.com/GMADLA/terraform-aws-ecs-alb-service-task.git?ref=tags/0.12.0"
   name                              = "${var.name}"
   namespace                         = "${var.namespace}"
   stage                             = "${var.stage}"
   attributes                        = "${var.attributes}"
-  alb_target_group_arn              = "${module.alb_ingress.target_group_arn}"
+  alb_target_group_arn              = "${module.alb_ingress_blue.target_group_arn}"
   container_definition_json         = "${module.container_definition.json}"
   container_name                    = "${module.default_label.id}"
   desired_count                     = "${var.desired_count}"
@@ -90,13 +114,135 @@ module "ecs_alb_service_task" {
   launch_type                       = "${var.launch_type}"
   vpc_id                            = "${var.vpc_id}"
   security_group_ids                = ["${var.ecs_security_group_ids}"]
-  private_subnet_ids                = ["${var.ecs_private_subnet_ids}"]
+  subnet_ids                        = ["${var.ecs_private_subnet_ids}"]
   container_port                    = "${var.container_port}"
+  deployment_type                   = "CODE_DEPLOY"
 }
 
-module "ecs_codepipeline" {
+# BLUE/GREEN ✖‿✖
+resource "aws_codedeploy_app" "default" {
+  compute_platform = "ECS"
+  name             = "${module.codedeploy_label.id}"
+}
+
+resource "aws_codedeploy_deployment_group" "default" {
+  count = "${var.alb_ssl_listener_arn == "" ? 1 : 0}"
+
+  app_name               = "${aws_codedeploy_app.default.name}"
+  deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
+  deployment_group_name  = "${module.codedeploy_group_label.id}"
+  service_role_arn       =  "${module.ecs_bg_codepipeline.default_role_arn}"
+
+  auto_rollback_configuration {
+    enabled = true
+    events = ["DEPLOYMENT_FAILURE"]
+  }
+
+  blue_green_deployment_config {
+    deployment_ready_option {
+      action_on_timeout = "CONTINUE_DEPLOYMENT"
+    }
+
+    terminate_blue_instances_on_deployment_success {
+      action                           = "TERMINATE"
+      termination_wait_time_in_minutes = 5
+    }
+  }
+
+  deployment_style {
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+    deployment_type   = "BLUE_GREEN"
+  }
+
+  ecs_service {
+    cluster_name = "${var.ecs_cluster_name}"
+    service_name = "${module.ecs_alb_service_task.service_name}"
+  }
+
+  load_balancer_info {
+    target_group_pair_info {
+      prod_traffic_route {
+        listener_arns = ["${var.alb_http_listener_arn}"]
+      }
+
+      target_group {
+        name = "${module.alb_ingress_blue.target_group_name}"
+      }
+
+      target_group {
+        name = "${module.alb_ingress_green.target_group_name}"
+      }
+
+      test_traffic_route {
+        listener_arns = ["${var.alb_test_listener_arn}"]
+      }
+    }
+  }
+}
+
+resource "aws_codedeploy_deployment_group" "with_ssl" {
+  count = "${var.alb_ssl_listener_arn == "" ? 0 : 1}"
+  app_name               = "${aws_codedeploy_app.default.name}"
+  deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
+  deployment_group_name  = "${module.codedeploy_group_label.id}"
+  service_role_arn       = "${module.ecs_bg_codepipeline.default_role_arn}"
+
+  trigger_configuration {
+    trigger_events     = ["DeploymentSuccess", "DeploymentFailure", "DeploymentReady", "DeploymentFailure"]
+    trigger_name       = "Update SSL Rule"
+    trigger_target_arn = "${module.update_ssl_rule.this_sns_topic_arn}"
+  }
+
+  auto_rollback_configuration {
+    enabled = true
+    events = ["DEPLOYMENT_FAILURE"]
+  }
+
+  blue_green_deployment_config {
+    deployment_ready_option {
+      action_on_timeout = "CONTINUE_DEPLOYMENT"
+    }
+
+    terminate_blue_instances_on_deployment_success {
+      action                           = "TERMINATE"
+      termination_wait_time_in_minutes = 5
+    }
+  }
+
+  deployment_style {
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+    deployment_type   = "BLUE_GREEN"
+  }
+
+  ecs_service {
+    cluster_name = "${var.ecs_cluster_name}"
+    service_name = "${module.ecs_alb_service_task.service_name}"
+  }
+
+  load_balancer_info {
+    target_group_pair_info {
+      prod_traffic_route {
+        listener_arns = ["${var.alb_http_listener_arn}"]
+      }
+
+      target_group {
+        name = "${module.alb_ingress_blue.target_group_name}"
+      }
+
+      target_group {
+        name = "${module.alb_ingress_green.target_group_name}"
+      }
+
+      test_traffic_route {
+        listener_arns = ["${var.alb_test_listener_arn}"]
+      }
+    }
+  }
+}
+
+module "ecs_bg_codepipeline" {
   enabled               = "${var.codepipeline_enabled}"
-  source                = "git::https://github.com/cloudposse/terraform-aws-ecs-codepipeline.git?ref=tags/0.7.0"
+  source                = "git::https://github.com/GMADLA/terraform-aws-ecs-codepipeline.git?ref=tags/0.10.0"
   name                  = "${var.name}"
   namespace             = "${var.namespace}"
   stage                 = "${var.stage}"
@@ -116,17 +262,26 @@ module "ecs_codepipeline" {
   privileged_mode       = "true"
   poll_source_changes   = "${var.poll_source_changes}"
 
+  pipeline_bucket_lifecycle_enabled = "true"
+
   webhook_enabled             = "${var.webhook_enabled}"
   webhook_target_action       = "${var.webhook_target_action}"
   webhook_authentication      = "${var.webhook_authentication}"
   webhook_filter_json_path    = "${var.webhook_filter_json_path}"
   webhook_filter_match_equals = "${var.webhook_filter_match_equals}"
 
+  code_deploy_sns_topic_arn   = "${module.update_ssl_rule.this_sns_topic_arn}"
+  code_deploy_lambda_hook_arns   = "${module.update_ssl_rule.update_ssl_lambda_function_arn}"
+
+  code_deploy_application_name      = "${aws_codedeploy_app.default.name}"
+  code_deploy_deployment_group_name = "${module.codedeploy_group_label.id}"
+
   environment_variables = [{
     "name"  = "CONTAINER_NAME"
     "value" = "${module.default_label.id}"
   }]
 }
+
 
 module "autoscaling" {
   enabled               = "${var.autoscaling_enabled}"
@@ -189,20 +344,42 @@ module "ecs_alarms" {
   memory_utilization_low_ok_actions         = "${var.ecs_alarms_memory_utilization_low_ok_actions}"
 }
 
-module "alb_target_group_alarms" {
+module "alb_blue_target_group_alarms" {
   enabled                        = "${var.alb_target_group_alarms_enabled}"
   source                         = "git::https://github.com/cloudposse/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=tags/0.5.0"
   name                           = "${var.name}"
   namespace                      = "${var.namespace}"
   stage                          = "${var.stage}"
-  attributes                     = "${var.attributes}"
+  attributes                     = ["${var.attributes}", "blue"]
   alarm_actions                  = ["${var.alb_target_group_alarms_alarm_actions}"]
   ok_actions                     = ["${var.alb_target_group_alarms_ok_actions}"]
   insufficient_data_actions      = ["${var.alb_target_group_alarms_insufficient_data_actions}"]
   alb_name                       = "${var.alb_name}"
   alb_arn_suffix                 = "${var.alb_arn_suffix}"
-  target_group_name              = "${module.alb_ingress.target_group_name}"
-  target_group_arn_suffix        = "${module.alb_ingress.target_group_arn_suffix}"
+  target_group_name              = "${module.alb_ingress_blue.target_group_name}"
+  target_group_arn_suffix        = "${module.alb_ingress_blue.target_group_arn_suffix}"
+  target_3xx_count_threshold     = "${var.alb_target_group_alarms_3xx_threshold}"
+  target_4xx_count_threshold     = "${var.alb_target_group_alarms_4xx_threshold}"
+  target_5xx_count_threshold     = "${var.alb_target_group_alarms_5xx_threshold}"
+  target_response_time_threshold = "${var.alb_target_group_alarms_response_time_threshold}"
+  period                         = "${var.alb_target_group_alarms_period}"
+  evaluation_periods             = "${var.alb_target_group_alarms_evaluation_periods}"
+}
+
+module "alb_green_target_group_alarms" {
+  enabled                        = "${var.alb_target_group_alarms_enabled}"
+  source                         = "git::https://github.com/cloudposse/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=tags/0.5.0"
+  name                           = "${var.name}"
+  namespace                      = "${var.namespace}"
+  stage                          = "${var.stage}"
+  attributes                     = ["${var.attributes}", "green"]
+  alarm_actions                  = ["${var.alb_target_group_alarms_alarm_actions}"]
+  ok_actions                     = ["${var.alb_target_group_alarms_ok_actions}"]
+  insufficient_data_actions      = ["${var.alb_target_group_alarms_insufficient_data_actions}"]
+  alb_name                       = "${var.alb_name}"
+  alb_arn_suffix                 = "${var.alb_arn_suffix}"
+  target_group_name              = "${module.alb_ingress_green.target_group_name}"
+  target_group_arn_suffix        = "${module.alb_ingress_green.target_group_arn_suffix}"
   target_3xx_count_threshold     = "${var.alb_target_group_alarms_3xx_threshold}"
   target_4xx_count_threshold     = "${var.alb_target_group_alarms_4xx_threshold}"
   target_5xx_count_threshold     = "${var.alb_target_group_alarms_5xx_threshold}"
