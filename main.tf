@@ -276,10 +276,20 @@ module "ecs_bg_codepipeline" {
   code_deploy_application_name      = "${aws_codedeploy_app.default.name}"
   code_deploy_deployment_group_name = "${module.codedeploy_group_label.id}"
 
-  environment_variables = [{
-    "name"  = "CONTAINER_NAME"
-    "value" = "${module.default_label.id}"
-  }]
+  environment_variables = [
+    {
+      "name"  = "CONTAINER_NAME"
+      "value" = "${module.default_label.id}"
+    },
+    {
+      "name"  = "CONTAINER_CPU"
+      "value" = "${var.container_cpu}"
+    },
+    {
+      "name"  = "CONTAINER_MEMORY"
+      "value" = "${var.container_memory}"
+    }
+  ]
 }
 
 
