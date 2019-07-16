@@ -145,7 +145,7 @@ resource "aws_codedeploy_deployment_group" "default" {
 
     terminate_blue_instances_on_deployment_success {
       action                           = "TERMINATE"
-      termination_wait_time_in_minutes = 5
+      termination_wait_time_in_minutes = "${var.blue_termination_wait_time_in_minutes}"
     }
   }
 
@@ -188,7 +188,7 @@ resource "aws_codedeploy_deployment_group" "with_ssl" {
   service_role_arn       = "${module.ecs_bg_codepipeline.default_role_arn}"
 
   trigger_configuration {
-    trigger_events     = ["DeploymentSuccess", "DeploymentFailure", "DeploymentReady", "DeploymentFailure"]
+    trigger_events     = ["DeploymentSuccess", "DeploymentFailure", "DeploymentReady", "DeploymentRollback"]
     trigger_name       = "Update SSL Rule"
     trigger_target_arn = "${module.update_ssl_rule.this_sns_topic_arn}"
   }
@@ -205,7 +205,7 @@ resource "aws_codedeploy_deployment_group" "with_ssl" {
 
     terminate_blue_instances_on_deployment_success {
       action                           = "TERMINATE"
-      termination_wait_time_in_minutes = 5
+      termination_wait_time_in_minutes = "${var.blue_termination_wait_time_in_minutes}"
     }
   }
 

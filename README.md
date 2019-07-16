@@ -212,6 +212,7 @@ Available targets:
 | alb_ssl_listener_arn | ALB SSL listener arn  for Blue/Green | string | `` | no |
 | alb_test_listener_arn | ALB test listener arn  for Blue/Green | string | `` | no |
 | alb_ingress_prod_listener_arns_count | The number of production ingress listeners | string | `0` | no |
+| blue_termination_wait_time_in_minutes | The number of minutes to wait after a successful deployment before terminating the old instances. | string | `60` | no |
 
 ## Outputs
 

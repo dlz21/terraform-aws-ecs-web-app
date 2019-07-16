@@ -641,3 +641,9 @@ variable "alb_ingress_prod_listener_arns_count" {
   default     = "0"
   description = "The number of production ingress listeners for Blue Green, usually http/s"
 }
+
+variable "blue_termination_wait_time_in_minutes" {
+  type        = "string"
+  default     = "60"
+  description = "The number of minutes to wait after a successful deployment before terminating the old instances."
+}
