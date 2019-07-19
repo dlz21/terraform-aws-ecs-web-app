@@ -42,7 +42,7 @@ module "codedeploy_group_label" {
 }
 
 module "alb_ingress_blue" {
-  source            = "git::https://github.com/GMADLA/terraform-aws-alb-ingress.git?ref=tags/0.8.0-dev"
+  source            = "git::https://github.com/GMADLA/terraform-aws-alb-ingress.git?ref=tags/0.8.0-dev.1"
   name              = "${var.name}"
   namespace         = "${var.namespace}"
   stage             = "${var.stage}"
@@ -62,7 +62,7 @@ module "alb_ingress_blue" {
 }
 
 module "alb_ingress_green" {
-  source            = "git::https://github.com/GMADLA/terraform-aws-alb-ingress.git?ref=tags/0.8.0-dev"
+  source            = "git::https://github.com/GMADLA/terraform-aws-alb-ingress.git?ref=tags/0.8.0-dev.1"
   name              = "${var.name}"
   namespace         = "${var.namespace}"
   stage             = "${var.stage}"
