@@ -42,7 +42,7 @@ module "codedeploy_group_label" {
 }
 
 module "alb_ingress_blue" {
-  source            = "git::https://github.com/cloudposse/terraform-aws-alb-ingress.git?ref=tags/0.7.0"
+  source            = "git::https://github.com/GMADLA/terraform-aws-alb-ingress.git?ref=tags/0.8.0"
   name              = "${var.name}"
   namespace         = "${var.namespace}"
   stage             = "${var.stage}"
@@ -58,10 +58,11 @@ module "alb_ingress_blue" {
 
   unauthenticated_listener_arns       = ["${var.alb_http_listener_arn}", "${var.alb_ssl_listener_arn}"]
   unauthenticated_listener_arns_count = "${var.alb_ingress_prod_listener_arns_count}"
+  blue_green_deployment = "${var.blue_green_enabled}"
 }
 
 module "alb_ingress_green" {
-  source            = "git::https://github.com/cloudposse/terraform-aws-alb-ingress.git?ref=tags/0.7.0"
+  source            = "git::https://github.com/GMADLA/terraform-aws-alb-ingress.git?ref=tags/0.8.0"
   name              = "${var.name}"
   namespace         = "${var.namespace}"
   stage             = "${var.stage}"
@@ -77,6 +78,7 @@ module "alb_ingress_green" {
 
   unauthenticated_listener_arns       = ["${var.alb_test_listener_arn}"]
   unauthenticated_listener_arns_count = "1"
+  blue_green_deployment = "${var.blue_green_enabled}"
 }
 
 module "container_definition" {
