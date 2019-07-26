@@ -2,6 +2,8 @@ import os
 import json, boto3
 
 def lambda_handler(event, context):
+    print("Trigger Event: ")
+    print(event);
     region = os.environ['ELB_REGION']
     elbv2_client = boto3.client('elbv2', region_name=region)
 
@@ -16,6 +18,9 @@ def lambda_handler(event, context):
     if http_target_group_arn==False:
         print("Could not identify the target arn")
         return False
+    else:
+        print("Current HTTP target group: ")
+        print(http_target_group_arn)
 
     # Get HTTPS listener rules.
     https_listener_arn = os.environ['SSL_LISTENER_ARN']
@@ -35,13 +40,17 @@ def lambda_handler(event, context):
         rule_modded = 0
         n = 0
         while n < len(actions):
-            if actions[n]['TargetGroupArn'] in arrMatches:
-                actions[n]['TargetGroupArn']=http_target_group_arn
-                rule_modded=1
+            try:
+                if actions[n]['TargetGroupArn'] in arrMatches:
+                    actions[n]['TargetGroupArn']=http_target_group_arn
+                    rule_modded=1
+            except Exception as e:
+                pass
 
             n +=1
 
         if rule_modded==1:
+            print("Updating SSL listener rules..")
             results[https_listener_rules[i]['RuleArn']] = elbv2_client.modify_rule(
                 RuleArn=https_listener_rules[i]['RuleArn'],
                 Actions=actions
@@ -65,8 +74,12 @@ def get_current_http_target_group(http_listener_rules, arrMatches):
         actions = http_listener_rules[i]['Actions']
         n=0
         while n<len(actions):
-            if actions[n]['TargetGroupArn'] in arrMatches:
-                return actions[n]['TargetGroupArn']
+
+            try:
+                if actions[n]['TargetGroupArn'] in arrMatches:
+                    return actions[n]['TargetGroupArn']
+            except Exception as e:
+                pass
 
             n +=1
 
