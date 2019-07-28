@@ -362,7 +362,7 @@ module "alb_blue_target_group_alarms" {
   name                           = "${var.name}"
   namespace                      = "${var.namespace}"
   stage                          = "${var.stage}"
-  attributes                     = ["${var.attributes}", "blue"]
+  attributes                     = "${concat(var.attributes, list("blue"))}"
   alarm_actions                  = ["${var.alb_target_group_alarms_alarm_actions}"]
   ok_actions                     = ["${var.alb_target_group_alarms_ok_actions}"]
   insufficient_data_actions      = ["${var.alb_target_group_alarms_insufficient_data_actions}"]
@@ -384,7 +384,7 @@ module "alb_green_target_group_alarms" {
   name                           = "${var.name}"
   namespace                      = "${var.namespace}"
   stage                          = "${var.stage}"
-  attributes                     = ["${var.attributes}", "green"]
+  attributes                     = "${concat(var.attributes, list("green"))}"
   alarm_actions                  = ["${var.alb_target_group_alarms_alarm_actions}"]
   ok_actions                     = ["${var.alb_target_group_alarms_ok_actions}"]
   insufficient_data_actions      = ["${var.alb_target_group_alarms_insufficient_data_actions}"]
