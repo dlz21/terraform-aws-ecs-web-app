@@ -46,7 +46,7 @@ module "alb_ingress_blue" {
   name              = "${var.name}"
   namespace         = "${var.namespace}"
   stage             = "${var.stage}"
-  attributes        = ["${var.attributes}", "blue"]
+  attributes        = "${concat(var.attributes, list("blue"))}"
   vpc_id            = "${var.vpc_id}"
   port              = "${var.container_port}"
   health_check_path = "${var.alb_ingress_healthcheck_path}"
@@ -66,7 +66,7 @@ module "alb_ingress_green" {
   name              = "${var.name}"
   namespace         = "${var.namespace}"
   stage             = "${var.stage}"
-  attributes        = ["${var.attributes}", "green"]
+  attributes        = "${concat(var.attributes, list("green"))}"
   vpc_id            = "${var.vpc_id}"
   port              = "${var.container_port}"
   health_check_path = "${var.alb_ingress_healthcheck_path}"
