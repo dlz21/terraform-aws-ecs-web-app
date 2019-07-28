@@ -8,12 +8,12 @@ module "default_label" {
 
 module "ecr" {
   enabled    = "${var.codepipeline_enabled}"
-  source     = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.6.0"
+  source     = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.7.0"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
   attributes = "${compact(concat(var.attributes, list("ecr")))}"
-  max_image_count = "30"
+  max_image_count = "10"
 }
 
 resource "aws_cloudwatch_log_group" "app" {
@@ -100,7 +100,7 @@ module "container_definition" {
 }
 
 module "ecs_alb_service_task" {
-  source                            = "git::https://github.com/GMADLA/terraform-aws-ecs-alb-service-task.git?ref=tags/0.12.0"
+  source                            = "git::https://github.com/dlz21/terraform-aws-ecs-alb-service-task.git?ref=t12Update"
   name                              = "${var.name}"
   namespace                         = "${var.namespace}"
   stage                             = "${var.stage}"
