@@ -3,7 +3,7 @@ locals {
 }
 
 module "update_ssl_rule" {
-  source         = "sns_lambda_update_ssl_rule"
+  source         = "./sns_lambda_update_ssl_rule"
   create         = "${local.ssl_enabled}"
   name           = "${var.name}"
   namespace      = "${var.namespace}"
