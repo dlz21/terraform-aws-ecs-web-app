@@ -16,6 +16,6 @@ module "update_ssl_rule" {
   ssl_listener_arn  = "${var.alb_ssl_listener_arn}"
   available_target_groups = ["${module.alb_ingress_blue.target_group_arn}","${module.alb_ingress_green.target_group_arn}"]
 
-  codedeploy_app_name       = "${module.aws_codedeploy_app.name}"
-  codedeploy_group_name     = "${module.aws_codedeploy_deployment_group.name}"
+  codedeploy_app_name       = "${aws_codedeploy_app.default.name}"
+  codedeploy_group_name     = "${aws_codedeploy_deployment_group.default.name}"
 }
