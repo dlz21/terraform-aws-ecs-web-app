@@ -9,10 +9,13 @@ module "update_ssl_rule" {
   namespace      = "${var.namespace}"
   stage          = "${var.stage}"
   attributes     = "${var.attributes}"
-  elb_region     = "${var.aws_logs_region}"
+  aws_region     = "${var.aws_logs_region}"
 
   ecs_cluster_name  = "${var.ecs_cluster_name}"
   http_listener_arn = "${var.alb_http_listener_arn}"
   ssl_listener_arn  = "${var.alb_ssl_listener_arn}"
   available_target_groups = ["${module.alb_ingress_blue.target_group_arn}","${module.alb_ingress_green.target_group_arn}"]
+
+  codedeploy_app_name       = "${module.aws_codedeploy_app.name}"
+  codedeploy_group_name     = "${module.aws_codedeploy_deployment_group.name}"
 }
