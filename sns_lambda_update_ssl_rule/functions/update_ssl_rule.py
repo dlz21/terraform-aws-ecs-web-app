@@ -41,9 +41,9 @@ def lambda_handler(event, context):
         n = 0
         while n < len(actions):
             try:
-                target_is_updated = check_target_update(actions[n]['TargetGroupArn'], arr_available_target_groups, http_target_group_arn)
+                update_target = check_target_update(actions[n]['TargetGroupArn'], arr_available_target_groups)
 
-                if target_is_updated:
+                if update_target:
                     actions[n]['TargetGroupArn']=http_target_group_arn
                     modify_rule=1
             except Exception as e:
@@ -99,9 +99,11 @@ def get_current_http_target_group(http_listener_rules, arr_available_target_grou
 
 
 # Check old target group is associated w/out available target and different.
-def check_target_update(old_target_group, arr_available_target_groups, new_target_group):
+# Be wary I found its possible the Listener rule is updated at the initial Ready Stage.
+# DO NOT TRY COMPARING OLD AN NEW, SIMPLY ALWAYS UPDATE TO MATCH HTTP IF ONE OF THE AVAILABLE TARGETS
+def check_target_update(old_target_group, arr_available_target_groups):
 
-    return old_target_group in arr_available_target_groups and old_target_group != new_target_group
+    return old_target_group in arr_available_target_groups
 
 
 # Sends notification to CodeDeploy on hook status...
