@@ -64,8 +64,8 @@ variable "sns_topic_name" {
   default     = ""
 }
 
-variable "elb_region" {
-  description = "The region of the ELB is found"
+variable "aws_region" {
+  description = "The AWS region"
 }
 
 variable "http_listener_arn" {
@@ -85,4 +85,14 @@ variable "available_target_groups" {
   type        = "list"
   default     = []
   description = "Available target groups for listener."
+}
+
+variable "codedeploy_app_name" {
+  type        = "string"
+  description = "Code Deploy Application Name Lambda needs to update w/status"
+}
+
+variable "codedeploy_group_name" {
+  type        = "string"
+  description = "Code Deploy Group Name Lambda needs to update w/status"
 }

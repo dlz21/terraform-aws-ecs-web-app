@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "lambda_basic" {
       "logs:PutLogEvents",
     ]
 
-    resources = ["${format("arn:aws:logs:us-west-2:*:log-group:/aws/lambda/%s:*", local.lambda_name)}"]
+    resources = ["${format("arn:aws:logs:%s:*:log-group:/aws/lambda/%s:*", var.aws_region, local.lambda_name)}"]
   }
 
   statement {
@@ -77,8 +77,22 @@ data "aws_iam_policy_document" "lambda_basic" {
 
     resources = [
       "${var.ssl_listener_arn}",
-      "${format("arn:aws:elasticloadbalancing:%s:*:listener-rule/app/%s-%s*/*/*/*", var.elb_region, var.namespace, var.stage)}"
+      "${format("arn:aws:elasticloadbalancing:%s:*:listener-rule/app/%s-%s*/*/*/*", var.aws_region, var.namespace, var.stage)}"
     ]
+  }
+
+  statement {
+      sid = "AllowPutLifeCycleHook"
+
+      effect = "Allow"
+
+      actions = [
+        "codedeploy:PutLifecycleEventHookExecutionStatus"
+      ]
+
+      resources = [
+        "${format("arn:aws:codedeploy:%s:*:deploymentgroup:%s/%s", var.aws_region, var.codedeploy_app_name, var.codedeploy_group_name)}"
+      ]
   }
 }
 
