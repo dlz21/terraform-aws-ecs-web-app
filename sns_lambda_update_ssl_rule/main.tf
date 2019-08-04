@@ -76,7 +76,7 @@ resource "aws_lambda_function" "update_ssl_rule" {
   filename      = "${data.archive_file.update_ssl_rule.0.output_path}"
   function_name = "${var.lambda_function_name == "" ? module.lambda_label.id: var.lambda_function_name}"
 
-  role             = "${aws_iam_role.lambda.arn}"
+  role             = "${element(concat(aws_iam_role.lambda.*.arn, list("")), 0)}"
   handler          = "update_ssl_rule.lambda_handler"
   source_code_hash = "${data.archive_file.update_ssl_rule.0.output_base64sha256}"
   runtime          = "python3.6"
