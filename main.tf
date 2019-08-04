@@ -1,5 +1,5 @@
 module "default_label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.2.1"
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
@@ -22,8 +22,8 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 
 module "codedeploy_label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.2.1"
-  attributes = ["${compact(concat(var.attributes, list("codedeploy")))}"]
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
+  attributes = "${compact(concat(var.attributes, list("codedeploy")))}"
   delimiter  = "${var.delimiter}"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
@@ -32,8 +32,8 @@ module "codedeploy_label" {
 }
 
 module "codedeploy_group_label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.2.1"
-  attributes = ["${compact(concat(var.attributes, list("codedeploy", "group")))}"]
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
+  attributes = "${compact(concat(var.attributes, list("codedeploy", "group")))}"
   delimiter  = "${var.delimiter}"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
