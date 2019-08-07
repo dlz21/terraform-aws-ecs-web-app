@@ -76,7 +76,7 @@ module "alb_ingress_green" {
 
   unauthenticated_priority = "${var.alb_ingress_listener_unauthenticated_priority}"
 
-  unauthenticated_listener_arns       = "${var.alb_test_listener_arn}"
+  unauthenticated_listener_arns       = ["${var.alb_test_listener_arn}"]
   unauthenticated_listener_arns_count = "1"
   blue_green_deployment = "${var.blue_green_enabled}"
 }
