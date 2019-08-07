@@ -51,8 +51,8 @@ module "alb_ingress_blue" {
   port              = "${var.container_port}"
   health_check_path = "${var.alb_ingress_healthcheck_path}"
 
-  unauthenticated_paths = ["${var.alb_ingress_unauthenticated_paths}"]
-  unauthenticated_hosts = ["${var.alb_ingress_unauthenticated_hosts}"]
+  unauthenticated_paths = "${var.alb_ingress_unauthenticated_paths}"
+  unauthenticated_hosts = "${var.alb_ingress_unauthenticated_hosts}"
 
   unauthenticated_priority = "${var.alb_ingress_listener_unauthenticated_priority}"
 
@@ -71,12 +71,12 @@ module "alb_ingress_green" {
   port              = "${var.container_port}"
   health_check_path = "${var.alb_ingress_healthcheck_path}"
 
-  unauthenticated_paths = ["${var.alb_ingress_unauthenticated_paths}"]
-  unauthenticated_hosts = ["${var.alb_ingress_unauthenticated_hosts}"]
+  unauthenticated_paths = "${var.alb_ingress_unauthenticated_paths}"
+  unauthenticated_hosts = "${var.alb_ingress_unauthenticated_hosts}"
 
   unauthenticated_priority = "${var.alb_ingress_listener_unauthenticated_priority}"
 
-  unauthenticated_listener_arns       = ["${var.alb_test_listener_arn}"]
+  unauthenticated_listener_arns       = "${var.alb_test_listener_arn}"
   unauthenticated_listener_arns_count = "1"
   blue_green_deployment = "${var.blue_green_enabled}"
 }
@@ -363,9 +363,9 @@ module "alb_blue_target_group_alarms" {
   namespace                      = "${var.namespace}"
   stage                          = "${var.stage}"
   attributes                     = "${concat(var.attributes, list("blue"))}"
-  alarm_actions                  = ["${var.alb_target_group_alarms_alarm_actions}"]
-  ok_actions                     = ["${var.alb_target_group_alarms_ok_actions}"]
-  insufficient_data_actions      = ["${var.alb_target_group_alarms_insufficient_data_actions}"]
+  alarm_actions                  = "${var.alb_target_group_alarms_alarm_actions}"
+  ok_actions                     = "${var.alb_target_group_alarms_ok_actions}"
+  insufficient_data_actions      = "${var.alb_target_group_alarms_insufficient_data_actions}"
   alb_name                       = "${var.alb_name}"
   alb_arn_suffix                 = "${var.alb_arn_suffix}"
   target_group_name              = "${module.alb_ingress_blue.target_group_name}"
@@ -385,9 +385,9 @@ module "alb_green_target_group_alarms" {
   namespace                      = "${var.namespace}"
   stage                          = "${var.stage}"
   attributes                     = "${concat(var.attributes, list("green"))}"
-  alarm_actions                  = ["${var.alb_target_group_alarms_alarm_actions}"]
-  ok_actions                     = ["${var.alb_target_group_alarms_ok_actions}"]
-  insufficient_data_actions      = ["${var.alb_target_group_alarms_insufficient_data_actions}"]
+  alarm_actions                  = "${var.alb_target_group_alarms_alarm_actions}"
+  ok_actions                     = "${var.alb_target_group_alarms_ok_actions}"
+  insufficient_data_actions      = "${var.alb_target_group_alarms_insufficient_data_actions}"
   alb_name                       = "${var.alb_name}"
   alb_arn_suffix                 = "${var.alb_arn_suffix}"
   target_group_name              = "${module.alb_ingress_green.target_group_name}"
