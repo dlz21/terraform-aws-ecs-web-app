@@ -62,7 +62,7 @@ data "null_data_source" "lambda_archive" {
 }
 
 data "archive_file" "update_ssl_rule" {
-  count = "${var.create ? 1 : 0}"
+  count = "${var.create == true ? 1 : 0}"
 
   type        = "zip"
   source_file = "${data.null_data_source.lambda_file.outputs.filename}"
