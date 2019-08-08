@@ -128,7 +128,7 @@ resource "aws_codedeploy_app" "default" {
 }
 
 resource "aws_codedeploy_deployment_group" "default" {
-  count = "${var.alb_ssl_listener_arn == "" ? 1 : 0}"
+  count = "${var.ssl_enabled == "false" ? 1 : 0}"
 
   app_name               = "${aws_codedeploy_app.default.name}"
   deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
@@ -183,7 +183,7 @@ resource "aws_codedeploy_deployment_group" "default" {
 }
 
 resource "aws_codedeploy_deployment_group" "with_ssl" {
-  count = "${var.alb_ssl_listener_arn == "" ? 0 : 1}"
+  count = "${var.ssl_enabled == "false" ? 0 : 1}"
   app_name               = "${aws_codedeploy_app.default.name}"
   deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
   deployment_group_name  = "${module.codedeploy_group_label.id}"
