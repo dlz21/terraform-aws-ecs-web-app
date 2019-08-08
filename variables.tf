@@ -647,3 +647,9 @@ variable "blue_termination_wait_time_in_minutes" {
   default     = "60"
   description = "The number of minutes to wait after a successful deployment before terminating the old instances."
 }
+
+variable "ssl_enabled" {
+  type        = "bool"
+  default     = false
+  description = "Is SSL enabeled by default"
+}
