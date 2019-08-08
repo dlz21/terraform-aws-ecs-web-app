@@ -51,13 +51,13 @@ resource "aws_lambda_permission" "sns_update_ssl" {
 
 data "null_data_source" "lambda_file" {
   inputs = {
-    filename = "${substr("${path.module}/functions/update_ssl_rule.py", length(path.cwd) + 1, -1)}"
+    filename = "${path.module}/functions/update_ssl_rule.py"
   }
 }
 
 data "null_data_source" "lambda_archive" {
   inputs = {
-    filename = "${substr("${path.module}/functions/update_ssl_rule.zip", length(path.cwd) + 1, -1)}"
+    filename = "${path.module}/functions/update_ssl_rule.zip"
   }
 }
 
