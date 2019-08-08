@@ -649,7 +649,7 @@ variable "blue_termination_wait_time_in_minutes" {
 }
 
 variable "ssl_enabled" {
-  type        = "bool"
-  default     = false
+  type        = "string"
+  default     = "false"
   description = "Is SSL enabeled by default"
 }
