@@ -409,6 +409,12 @@ variable "github_oauth_token" {
   default     = ""
 }
 
+variable "github_webhooks_token" {
+  type        = "string"
+  description = "GitHub Webhooks Token with permissions to access private repositories"
+  default     = ""
+}
+
 variable "github_webhook_events" {
   type        = "list"
   description = "A list of events which should trigger the webhook. See a list of [available events](https://developer.github.com/v3/activity/events/types/)"
