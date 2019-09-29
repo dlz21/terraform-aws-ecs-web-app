@@ -1,5 +1,5 @@
 module "default_label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.2.1"
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
@@ -8,12 +8,12 @@ module "default_label" {
 
 module "ecr" {
   enabled    = "${var.codepipeline_enabled}"
-  source     = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.6.0"
+  source     = "git::https://github.com/cloudposse/terraform-aws-ecr.git?ref=tags/0.7.0"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
   attributes = "${compact(concat(var.attributes, list("ecr")))}"
-  max_image_count = "30"
+  max_image_count = "10"
 }
 
 resource "aws_cloudwatch_log_group" "app" {
@@ -22,8 +22,8 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 
 module "codedeploy_label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.2.1"
-  attributes = ["${compact(concat(var.attributes, list("codedeploy")))}"]
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
+  attributes = "${compact(concat(var.attributes, list("codedeploy")))}"
   delimiter  = "${var.delimiter}"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
@@ -32,8 +32,8 @@ module "codedeploy_label" {
 }
 
 module "codedeploy_group_label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.2.1"
-  attributes = ["${compact(concat(var.attributes, list("codedeploy", "group")))}"]
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
+  attributes = "${compact(concat(var.attributes, list("codedeploy", "group")))}"
   delimiter  = "${var.delimiter}"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
@@ -42,17 +42,17 @@ module "codedeploy_group_label" {
 }
 
 module "alb_ingress_blue" {
-  source            = "git::https://github.com/GMADLA/terraform-aws-alb-ingress.git?ref=tags/0.8.0"
+  source            = "git::https://github.com/dlz21/terraform-aws-alb-ingress.git?ref=tags/0.9.0"
   name              = "${var.name}"
   namespace         = "${var.namespace}"
   stage             = "${var.stage}"
-  attributes        = ["${var.attributes}", "blue"]
+  attributes        = "${concat(var.attributes, list("blue"))}"
   vpc_id            = "${var.vpc_id}"
   port              = "${var.container_port}"
   health_check_path = "${var.alb_ingress_healthcheck_path}"
 
-  unauthenticated_paths = ["${var.alb_ingress_unauthenticated_paths}"]
-  unauthenticated_hosts = ["${var.alb_ingress_unauthenticated_hosts}"]
+  unauthenticated_paths = "${var.alb_ingress_unauthenticated_paths}"
+  unauthenticated_hosts = "${var.alb_ingress_unauthenticated_hosts}"
 
   unauthenticated_priority = "${var.alb_ingress_listener_unauthenticated_priority}"
 
@@ -62,17 +62,17 @@ module "alb_ingress_blue" {
 }
 
 module "alb_ingress_green" {
-  source            = "git::https://github.com/GMADLA/terraform-aws-alb-ingress.git?ref=tags/0.8.0"
+  source            = "git::https://github.com/dlz21/terraform-aws-alb-ingress.git?ref=tags/0.9.0"
   name              = "${var.name}"
   namespace         = "${var.namespace}"
   stage             = "${var.stage}"
-  attributes        = ["${var.attributes}", "green"]
+  attributes        = "${concat(var.attributes, list("green"))}"
   vpc_id            = "${var.vpc_id}"
   port              = "${var.container_port}"
   health_check_path = "${var.alb_ingress_healthcheck_path}"
 
-  unauthenticated_paths = ["${var.alb_ingress_unauthenticated_paths}"]
-  unauthenticated_hosts = ["${var.alb_ingress_unauthenticated_hosts}"]
+  unauthenticated_paths = "${var.alb_ingress_unauthenticated_paths}"
+  unauthenticated_hosts = "${var.alb_ingress_unauthenticated_hosts}"
 
   unauthenticated_priority = "${var.alb_ingress_listener_unauthenticated_priority}"
 
@@ -100,7 +100,7 @@ module "container_definition" {
 }
 
 module "ecs_alb_service_task" {
-  source                            = "git::https://github.com/GMADLA/terraform-aws-ecs-alb-service-task.git?ref=tags/0.12.0"
+  source                            = "git::https://github.com/dlz21/terraform-aws-ecs-alb-service-task.git?ref=tags/0.13.0"
   name                              = "${var.name}"
   namespace                         = "${var.namespace}"
   stage                             = "${var.stage}"
@@ -128,7 +128,7 @@ resource "aws_codedeploy_app" "default" {
 }
 
 resource "aws_codedeploy_deployment_group" "default" {
-  count = "${var.alb_ssl_listener_arn == "" ? 1 : 0}"
+  count = "${var.ssl_enabled == "false" ? 1 : 0}"
 
   app_name               = "${aws_codedeploy_app.default.name}"
   deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
@@ -183,7 +183,7 @@ resource "aws_codedeploy_deployment_group" "default" {
 }
 
 resource "aws_codedeploy_deployment_group" "with_ssl" {
-  count = "${var.alb_ssl_listener_arn == "" ? 0 : 1}"
+  count = "${var.ssl_enabled == "false" ? 0 : 1}"
   app_name               = "${aws_codedeploy_app.default.name}"
   deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
   deployment_group_name  = "${module.codedeploy_group_label.id}"
@@ -244,12 +244,13 @@ resource "aws_codedeploy_deployment_group" "with_ssl" {
 
 module "ecs_bg_codepipeline" {
   enabled               = "${var.codepipeline_enabled}"
-  source                = "git::https://github.com/GMADLA/terraform-aws-ecs-codepipeline.git?ref=tags/0.10.2"
+  source                = "git::https://github.com/dlz21/terraform-aws-ecs-codepipeline.git?ref=tags/0.11.0"
   name                  = "${var.name}"
   namespace             = "${var.namespace}"
   stage                 = "${var.stage}"
   attributes            = "${var.attributes}"
   github_oauth_token    = "${var.github_oauth_token}"
+  github_webhooks_token = "${var.github_webhooks_token}"
   github_webhook_events = "${var.github_webhook_events}"
   repo_owner            = "${var.repo_owner}"
   repo_name             = "${var.repo_name}"
@@ -320,7 +321,7 @@ locals {
 }
 
 module "ecs_alarms" {
-  source     = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.4.0"
+  source     = "git::https://github.com/dlz21/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.5.0"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
@@ -358,14 +359,14 @@ module "ecs_alarms" {
 
 module "alb_blue_target_group_alarms" {
   enabled                        = "${var.alb_target_group_alarms_enabled}"
-  source                         = "git::https://github.com/cloudposse/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=tags/0.5.0"
+  source                         = "git::https://github.com/dlz21/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=tags/0.7.0"
   name                           = "${var.name}"
   namespace                      = "${var.namespace}"
   stage                          = "${var.stage}"
-  attributes                     = ["${var.attributes}", "blue"]
-  alarm_actions                  = ["${var.alb_target_group_alarms_alarm_actions}"]
-  ok_actions                     = ["${var.alb_target_group_alarms_ok_actions}"]
-  insufficient_data_actions      = ["${var.alb_target_group_alarms_insufficient_data_actions}"]
+  attributes                     = "${concat(var.attributes, list("blue"))}"
+  alarm_actions                  = "${var.alb_target_group_alarms_alarm_actions}"
+  ok_actions                     = "${var.alb_target_group_alarms_ok_actions}"
+  insufficient_data_actions      = "${var.alb_target_group_alarms_insufficient_data_actions}"
   alb_name                       = "${var.alb_name}"
   alb_arn_suffix                 = "${var.alb_arn_suffix}"
   target_group_name              = "${module.alb_ingress_blue.target_group_name}"
@@ -380,14 +381,14 @@ module "alb_blue_target_group_alarms" {
 
 module "alb_green_target_group_alarms" {
   enabled                        = "${var.alb_target_group_alarms_enabled}"
-  source                         = "git::https://github.com/cloudposse/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=tags/0.5.0"
+  source                         = "git::https://github.com/dlz21/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=tags/0.7.0"
   name                           = "${var.name}"
   namespace                      = "${var.namespace}"
   stage                          = "${var.stage}"
-  attributes                     = ["${var.attributes}", "green"]
-  alarm_actions                  = ["${var.alb_target_group_alarms_alarm_actions}"]
-  ok_actions                     = ["${var.alb_target_group_alarms_ok_actions}"]
-  insufficient_data_actions      = ["${var.alb_target_group_alarms_insufficient_data_actions}"]
+  attributes                     = "${concat(var.attributes, list("green"))}"
+  alarm_actions                  = "${var.alb_target_group_alarms_alarm_actions}"
+  ok_actions                     = "${var.alb_target_group_alarms_ok_actions}"
+  insufficient_data_actions      = "${var.alb_target_group_alarms_insufficient_data_actions}"
   alb_name                       = "${var.alb_name}"
   alb_arn_suffix                 = "${var.alb_arn_suffix}"
   target_group_name              = "${module.alb_ingress_green.target_group_name}"

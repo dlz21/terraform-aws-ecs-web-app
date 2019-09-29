@@ -50,14 +50,14 @@ resource "aws_lambda_permission" "sns_update_ssl" {
 }
 
 data "null_data_source" "lambda_file" {
-  inputs {
-    filename = "${substr("${path.module}/functions/update_ssl_rule.py", length(path.cwd) + 1, -1)}"
+  inputs = {
+    filename = "${path.module}/functions/update_ssl_rule.py"
   }
 }
 
 data "null_data_source" "lambda_archive" {
-  inputs {
-    filename = "${substr("${path.module}/functions/update_ssl_rule.zip", length(path.cwd) + 1, -1)}"
+  inputs = {
+    filename = "${path.module}/functions/update_ssl_rule.zip"
   }
 }
 
@@ -76,7 +76,7 @@ resource "aws_lambda_function" "update_ssl_rule" {
   filename      = "${data.archive_file.update_ssl_rule.0.output_path}"
   function_name = "${var.lambda_function_name == "" ? module.lambda_label.id: var.lambda_function_name}"
 
-  role             = "${aws_iam_role.lambda.arn}"
+  role             = "${element(concat(aws_iam_role.lambda.*.arn, list("")), 0)}"
   handler          = "update_ssl_rule.lambda_handler"
   source_code_hash = "${data.archive_file.update_ssl_rule.0.output_base64sha256}"
   runtime          = "python3.6"

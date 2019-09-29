@@ -409,6 +409,12 @@ variable "github_oauth_token" {
   default     = ""
 }
 
+variable "github_webhooks_token" {
+  type        = "string"
+  description = "GitHub Webhooks Token with permissions to access private repositories"
+  default     = ""
+}
+
 variable "github_webhook_events" {
   type        = "list"
   description = "A list of events which should trigger the webhook. See a list of [available events](https://developer.github.com/v3/activity/events/types/)"
@@ -646,4 +652,10 @@ variable "blue_termination_wait_time_in_minutes" {
   type        = "string"
   default     = "60"
   description = "The number of minutes to wait after a successful deployment before terminating the old instances."
+}
+
+variable "ssl_enabled" {
+  type        = "string"
+  default     = "false"
+  description = "Is SSL enabeled by default"
 }
