@@ -100,7 +100,7 @@ module "container_definition" {
 }
 
 module "ecs_alb_service_task" {
-  source                            = "git::https://github.com/dlz21/terraform-aws-ecs-alb-service-task.git?ref=t12Update"
+  source                            = "git::https://github.com/dlz21/terraform-aws-ecs-alb-service-task.git?ref=tags/0.13.0"
   name                              = "${var.name}"
   namespace                         = "${var.namespace}"
   stage                             = "${var.stage}"
