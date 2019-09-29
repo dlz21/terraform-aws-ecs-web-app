@@ -359,7 +359,7 @@ module "ecs_alarms" {
 
 module "alb_blue_target_group_alarms" {
   enabled                        = "${var.alb_target_group_alarms_enabled}"
-  source                         = "git::https://github.com/dlz21/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=t12Update"
+  source                         = "git::https://github.com/dlz21/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=tags/0.7.0"
   name                           = "${var.name}"
   namespace                      = "${var.namespace}"
   stage                          = "${var.stage}"
@@ -381,7 +381,7 @@ module "alb_blue_target_group_alarms" {
 
 module "alb_green_target_group_alarms" {
   enabled                        = "${var.alb_target_group_alarms_enabled}"
-  source                         = "git::https://github.com/dlz21/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=t12Update"
+  source                         = "git::https://github.com/dlz21/terraform-aws-alb-target-group-cloudwatch-sns-alarms.git?ref=tags/0.7.0"
   name                           = "${var.name}"
   namespace                      = "${var.namespace}"
   stage                          = "${var.stage}"
