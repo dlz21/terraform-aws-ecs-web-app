@@ -321,7 +321,7 @@ locals {
 }
 
 module "ecs_alarms" {
-  source     = "git::https://github.com/dlz21/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=t12Update"
+  source     = "git::https://github.com/dlz21/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.5.0"
   name       = "${var.name}"
   namespace  = "${var.namespace}"
   stage      = "${var.stage}"
